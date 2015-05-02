@@ -1,0 +1,26 @@
+<html>
+<%
+import numpy as np
+import rraman
+
+f_object = '/up/graphene_3-3-C_200slit_0.2sec_5.1desity'
+ys = np.loadtxt(f_object)
+x_orig = np.linspace(1240.0691, 2919.5986, 1024)
+
+sections = [[0, 150], [150, 300], [800, 1000]]
+fit_results = []
+for line in ys:
+    fit_result_for_a_line = [line[0]]
+    for section in sections:
+        fit_result = rraman.local_fit(x_orig, line[1:], section)
+        fit_result_for_a_line = np.append(fit_result_for_a_line, np.abs(fit_result[0]), axis = 0)
+    fit_result_for_a_line = np.append(fit_result_for_a_line, fit_result_for_a_line[9] / fit_result_for_a_line[6])
+    fit_results = np.append(fit_results, fit_result_for_a_line, axis=1)
+    print(line[0])
+fit_results=np.reshape(fit_results,(ys[:,0].size,11))   
+Header_text = 'Time\t' + 'D_FWHM\tD_Center\tD_Amplitude\t' + \
+'G_FWHM\tG_Center\tG_Amplitude\t' + '2D_FWHM\t2D_Center\t2D_Amplitude\t2D/G Ratio'
+np.savetxt(f_object+'.fitted.txt', fit_results, delimiter='\t', newline='\r\n')
+%>
+</html>
+
